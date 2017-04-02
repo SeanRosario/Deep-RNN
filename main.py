@@ -215,7 +215,7 @@ if args.save != '':
         torch.save(model, f)
         
 var = next(model.encoder.parameters())
-var = var.data.numpy()
+var = var.data.cpu().numpy()
 
 dim = args.tsnedim
 
