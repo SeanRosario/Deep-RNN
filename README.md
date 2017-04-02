@@ -42,6 +42,8 @@ optional arguments:
   --tied             tie the word embedding and softmax weights
   --seed SEED        random seed
   --log-interval N   report interval
+  --optim            type of optimizer
+  --tsnedim          size of the subset needed for the tsne
   --save SAVE        path to save the final model
 ```
 
