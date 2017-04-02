@@ -3,7 +3,10 @@ import time
 import math
 import torch
 import torch.nn as nn
+import torch.optim as opt
+from matplotlib import pyplot as plt#fnrom sklearn.manifold import TSNE
 from torch.autograd import Variable
+from torch.optim import Adam, RMSprop, SGD
 
 import data
 import model
@@ -39,6 +42,8 @@ parser.add_argument('--cuda', action='store_true',
                     help='use CUDA')
 parser.add_argument('--log-interval', type=int, default=200, metavar='N',
                     help='report interval')
+parser.add_argument('--optim', type=str, default='default',
+                   help='Torch optimizer, can have choice of (Adam, SGD, RMSProp, Adadelta)')
 parser.add_argument('--save', type=str,  default='model.pt',
                     help='path to save the final model')
 args = parser.parse_args()
@@ -127,10 +132,16 @@ def train():
     for batch, i in enumerate(range(0, train_data.size(0) - 1, args.bptt)):
         data, targets = get_batch(train_data, i)
         hidden = repackage_hidden(hidden)
-        model.zero_grad()
+        if args.optim == 'default':
+            model.zero_grad()
+        else:
+            optimizer.zero_grad()
         output, hidden = model(data, hidden)
         loss = criterion(output.view(-1, ntokens), targets)
         loss.backward()
+                    
+        if args.optim != 'default':
+            optimizer.step()
 
         clipped_lr = lr * clip_gradient(model, args.clip)
         for p in model.parameters():
@@ -152,6 +163,10 @@ def train():
 # Loop over epochs.
 lr = args.lr
 prev_val_loss = None
+
+if args.optim != 'default':
+    optimizer = getattr(opt, args.optim)(model.parameters(), lr=lr)
+
 for epoch in range(1, args.epochs+1):
     epoch_start_time = time.time()
     train()
@@ -176,3 +191,20 @@ print('=' * 89)
 if args.save != '':
     with open(args.save, 'wb') as f:
         torch.save(model, f)
+        
+var = next(model.encoder.parameters())
+var = var.data.numpy()
+
+dim = 300
+
+tsne = TSNE()
+tsne_var = tsne.fit_transform(var[:dim, :])
+
+fig, ax = plt.subplots()
+plt.title('TSNE Plot for Base Model')
+ax.scatter(tsne_var[:, 0], tsne_var[:, 1], alpha=0.)
+
+for i in range(dim):
+    ax.annotate(corpus.dictionary.idx2word[i], (tsne_var[i, 0], tsne_var[i, 1]))
+    
+plt.savefig(str(args.save) + '-tsne.png')
