@@ -5,6 +5,8 @@ import torch
 import torch.nn as nn
 import torch.optim as opt
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 from sklearn.manifold import TSNE
 from matplotlib import pyplot as plt#fnrom sklearn.manifold import TSNE
 from torch.autograd import Variable
