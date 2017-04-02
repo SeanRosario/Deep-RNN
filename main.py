@@ -44,6 +44,8 @@ parser.add_argument('--log-interval', type=int, default=200, metavar='N',
                     help='report interval')
 parser.add_argument('--optim', type=str, default='default',
                    help='Torch optimizer, can have choice of (Adam, SGD, RMSProp, Adadelta)')
+parser.add_argument('--tsnedim', type=int, default=300,
+                   help='Subset of the vocabulary used for the TSNE Plot')
 parser.add_argument('--save', type=str,  default='model.pt',
                     help='path to save the final model')
 args = parser.parse_args()
@@ -195,7 +197,7 @@ if args.save != '':
 var = next(model.encoder.parameters())
 var = var.data.numpy()
 
-dim = 300
+dim = args.tsnedim
 
 tsne = TSNE()
 tsne_var = tsne.fit_transform(var[:dim, :])
