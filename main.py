@@ -4,6 +4,8 @@ import math
 import torch
 import torch.nn as nn
 import torch.optim as opt
+import numpy as np
+from sklearn.manifold import TSNE
 from matplotlib import pyplot as plt#fnrom sklearn.manifold import TSNE
 from torch.autograd import Variable
 from torch.optim import Adam, RMSprop, SGD
@@ -40,6 +42,8 @@ parser.add_argument('--seed', type=int, default=1111,
                     help='random seed')
 parser.add_argument('--cuda', action='store_true',
                     help='use CUDA')
+parser.add_argument('--shuffle', action='store_true',
+                    help='Shuffle training set at the beginning of each epoch')
 parser.add_argument('--log-interval', type=int, default=200, metavar='N',
                     help='report interval')
 parser.add_argument('--optim', type=str, default='default',
@@ -131,7 +135,10 @@ def train():
     start_time = time.time()
     ntokens = len(corpus.dictionary)
     hidden = model.init_hidden(args.batch_size)
-    for batch, i in enumerate(range(0, train_data.size(0) - 1, args.bptt)):
+    indices = range(0, train_data.size(0) - 1, args.bptt)
+    if args.shuffle is True:
+        np.random.shuffle(indices)
+    for batch, i in enumerate(indices):
         data, targets = get_batch(train_data, i)
         hidden = repackage_hidden(hidden)
         if args.optim == 'default':
