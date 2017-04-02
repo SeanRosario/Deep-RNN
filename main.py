@@ -52,6 +52,8 @@ parser.add_argument('--tsnedim', type=int, default=300,
                    help='Subset of the vocabulary used for the TSNE Plot')
 parser.add_argument('--save', type=str,  default='model.pt',
                     help='path to save the final model')
+parser.add_argument('--savetest', type=str,  default='model.txt',
+                    help='file to save the test score')
 args = parser.parse_args()
 
 # Set the random seed manually for reproducibility.
@@ -196,6 +198,17 @@ test_loss = evaluate(test_data)
 print('=' * 89)
 print('| End of training | test loss {:5.2f} | test ppl {:8.2f}'.format(
     test_loss, math.exp(test_loss)))
+
+if args.savetest != '':
+    save_name = args.savetest
+elif args.save != '':
+    save_name = args.save + '-test-loss.txt'
+
+if save_name != '':
+    with open(save_name, 'wb') as w:
+        w.write('| End of training | test loss {:5.2f} | test ppl {:8.2f}'.format(
+    test_loss, math.exp(test_loss)))
+
 print('=' * 89)
 if args.save != '':
     with open(args.save, 'wb') as f:
