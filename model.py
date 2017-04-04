@@ -51,7 +51,7 @@ class RNNModel(nn.Module):
             >>> nninit.xavier_normal(w, gain=np.sqrt(2.0))
         """
         if isinstance(tensor, Variable):
-            xavier_normal(tensor.data, gain=gain)
+            self.xavier_normal(tensor.data, gain=gain)
             return tensor
         else:
             fan_in, fan_out = _calculate_fan_in_and_fan_out(tensor)
