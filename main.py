@@ -56,6 +56,8 @@ parser.add_argument('--save', type=str,  default='model.pt',
                     help='path to save the final model')
 parser.add_argument('--savetest', type=str,  default='model.txt',
                     help='file to save the test score')
+parser.add_argument('--xavier', action='store_true',
+                    help='Use Xavier Initialization')
 args = parser.parse_args()
 
 # Set the random seed manually for reproducibility.
@@ -85,8 +87,12 @@ test_data = batchify(corpus.test, eval_batch_size)
 ###############################################################################
 
 ntokens = len(corpus.dictionary)
+if args.xavier:
+    xav = True
+else:
+    xav = False
 model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid,
-        args.nlayers, args.dropout, args.tied)
+        args.nlayers, args.dropout, args.tied, xavier=xav)
 if args.cuda:
     model.cuda()
 
