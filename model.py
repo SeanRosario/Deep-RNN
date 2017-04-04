@@ -54,7 +54,7 @@ class RNNModel(nn.Module):
             self.xavier_normal(tensor.data, gain=gain)
             return tensor
         else:
-            fan_in, fan_out = _calculate_fan_in_and_fan_out(tensor)
+            fan_in, fan_out = self._calculate_fan_in_and_fan_out(tensor)
             std = gain * np.sqrt(2.0 / (fan_in + fan_out))
             return tensor.normal_(0, std)
         
