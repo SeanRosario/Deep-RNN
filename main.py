@@ -58,6 +58,8 @@ parser.add_argument('--savetest', type=str,  default='model.txt',
                     help='file to save the test score')
 parser.add_argument('--xavier', action='store_true',
                     help='Use Xavier Initialization')
+parser.add_argument('--bidirectional', action='store_true',
+                    help='Use Bidirectional Recurrence')
 args = parser.parse_args()
 
 # Set the random seed manually for reproducibility.
@@ -92,7 +94,8 @@ if args.xavier:
 else:
     xav = False
 model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid,
-        args.nlayers, args.dropout, args.tied, xavier=xav)
+        args.nlayers, dropout=args.dropout, tie_weights=args.tied,
+        bidirectional=args.bidirectional, xavier=xav)
 if args.cuda:
     model.cuda()
 

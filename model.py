@@ -6,10 +6,13 @@ from torch.autograd import Variable
 class RNNModel(nn.Module):
     """Container module with an encoder, a recurrent module, and a decoder."""
 
-    def __init__(self, rnn_type, ntoken, ninp, nhid, nlayers, dropout=0.5, tie_weights=False, xavier=False):
+    def __init__(self, rnn_type, ntoken, ninp, nhid, nlayers, dropout=0.5, bidirectional=False,
+        tie_weights=False, xavier=False):
         super(RNNModel, self).__init__()
         self.encoder = nn.Embedding(ntoken, ninp)
-        self.rnn = getattr(nn, rnn_type)(ninp, nhid, nlayers, bias=False, dropout=dropout)
+        self.drop = nn.Dropout(dropout)
+        self.rnn = getattr(nn, rnn_type)(ninp, nhid, nlayers,
+            bias=False, dropout=dropout)
         self.decoder = nn.Linear(nhid, ntoken)
         self.xavier = xavier
 
@@ -71,7 +74,9 @@ class RNNModel(nn.Module):
     def forward(self, input, hidden):
         emb = self.encoder(input)
         output, hidden = self.rnn(emb, hidden)
+        output = self.drop(output)
         decoded = self.decoder(output.view(output.size(0)*output.size(1), output.size(2)))
+        decoded = self.drop(decoded)
         return decoded.view(output.size(0), output.size(1), decoded.size(1)), hidden
 
     def init_hidden(self, bsz):
